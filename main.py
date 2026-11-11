@@ -9,7 +9,16 @@ from pathlib import Path
 
 from fastmcp import FastMCP
 
-DB_PATH = os.environ.get("EXPENSE_DB_PATH", str(Path(__file__).parent / "expenses.db"))
+import tempfile
+
+def _default_db_path() -> str:
+    folder = Path(__file__).parent
+    if os.access(folder, os.W_OK):
+        return str(folder / "expenses.db")
+    # Server par project folder read-only ho sakta hai, is liye temp folder use karein
+    return str(Path(tempfile.gettempdir()) / "expenses.db")
+
+DB_PATH = os.environ.get("EXPENSE_DB_PATH", _default_db_path())
 
 DEFAULT_CATEGORIES = {
     "Food": ["Groceries", "Restaurants", "Snacks"],
